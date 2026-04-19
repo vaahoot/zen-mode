@@ -18,6 +18,10 @@ int is_flag(const char *arg, const char *short_f, const char *long_f) {
 
 int process_domains(int i, int argc, char **argv, void (*action)(const char *)) {
   i++;
+  if (i >= argc || argv[i][0] == '-') {
+    fprintf(stderr, "Expected domains after %s\n", argv[i - 1]);
+    return -1;
+  }
   while (i < argc && argv[i][0] != '-') {
     action(argv[i]);
     i++;
@@ -38,9 +42,11 @@ int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     if (is_flag(argv[i], "-b", "--block")) {
       i = process_domains(i, argc, argv, block_domain);
+      if (i == -1) return 1;
       printf("Blocked domains successfully.\n");
     } else if (is_flag(argv[i], "-u", "--unblock")) {
       i = process_domains(i, argc, argv, unblock_domain);
+      if (i == -1) return 1;
       printf("Unblocked domains successfully.\n");
     } else if (is_flag(argv[i], "-U", "--unblock-all")) {
       unblock_domain(NULL);
