@@ -25,25 +25,25 @@ void block_domain(const char *domain) {
     fclose(f);
 }
 
-void unblock_all(void) {
+void unblock_domain(const char *domain) {
     FILE *f = fopen(HOSTS_PATH, "r");
     if (!f) {
         perror("Failed to open /etc/hosts");
         return;
     }
 
-    // Read all lines into a buffer
     char lines[512][256];
     int count = 0;
     while (fgets(lines[count], 256, f) && count < 512) {
-        // Only keep lines that don't have our marker
         if (!strstr(lines[count], MARKER)) {
-            count++;
+            count++;  // no marker, always keep
+        } else if (domain && !strstr(lines[count], domain)) {
+            count++;  // has marker but wrong domain, keep
         }
+        // otherwise: skip the line (remove it)
     }
     fclose(f);
 
-    // Remove our lines from the file
     f = fopen(HOSTS_PATH, "w");
     if (!f) {
         perror("Failed to write /etc/hosts");
