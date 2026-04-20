@@ -6,6 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#define ZEN_VERSION "0.1.0"
+
 void print_help(void) {
   printf("Usage: zen [options]\n");
   printf("  -b, --block         block domains (runs until interrupted)\n");
@@ -14,6 +16,7 @@ void print_help(void) {
   printf("  -w, --work MINUTES  work phase duration (requires -r)\n");
   printf("  -r, --rest MINUTES  rest phase duration (requires -w)\n");
   printf("  -h, --help          show this message\n");
+  printf("  -v, --version       show version\n");
 }
 
 int is_flag(const char *arg, const char *short_f, const char *long_f) {
@@ -26,6 +29,12 @@ static void on_signal(int sig) {
 }
 
 int main(int argc, char **argv) {
+  for (int i = 1; i < argc; i++) {
+    if (is_flag(argv[i], "-v", "--version")) {
+      printf("zen %s\n", ZEN_VERSION);
+      return 0;
+    }
+  }
   if (getuid() != 0) {
     fprintf(stderr, "zen requires root privileges. Run with sudo.\n");
     return 1;
