@@ -12,15 +12,23 @@ cd zen
 make
 ```
 
-Produces `out/zen`.
+Produces `out/zen`, you can move the executable to `/usr/local/bin/`.
+
+## Install using Homebrew
+
+```
+brew tap vaahoot/tap
+brew install zen-mode
+zen -v
+```
 
 ## Usage
 
 ```
-sudo ./out/zen -b reddit.com youtube.com         # block until Ctrl-C
-sudo ./out/zen -b youtube.com -w 25 -r 5         # 25 min work / 5 min rest cycle
-sudo ./out/zen -u youtube.com                    # unblock a specific domain
-sudo ./out/zen -U                                # unblock everything zen manages
+sudo zen -b reddit.com youtube.com         # block until Ctrl-C
+sudo zen -b youtube.com -w 25 -r 5         # 25 min work / 5 min rest cycle
+sudo zen -u youtube.com                    # unblock a specific domain
+sudo zen -U                                # unblock everything zen manages
 ```
 
 Flags:
