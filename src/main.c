@@ -16,20 +16,6 @@ int is_flag(const char *arg, const char *short_f, const char *long_f) {
   return strcmp(arg, short_f) == 0 || strcmp(arg, long_f) == 0;
 }
 
-int process_domains(int i, int argc, char **argv,
-                    void (*action)(const char *)) {
-  i++;
-  if (i >= argc || argv[i][0] == '-') {
-    fprintf(stderr, "Expected domains after %s\n", argv[i - 1]);
-    return -1;
-  }
-  while (i < argc && argv[i][0] != '-') {
-    action(argv[i]);
-    i++;
-  }
-  return i - 1;
-}
-
 int main(int argc, char **argv) {
   if (getuid() != 0) {
     fprintf(stderr, "zen requires root privileges. Run with sudo.\n");
@@ -40,20 +26,17 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  int had_failure = 0;
   for (int i = 1; i < argc; i++) {
+    int (*action)(const char *) = NULL;
     if (is_flag(argv[i], "-b", "--block")) {
-      i = process_domains(i, argc, argv, block_domain);
-      if (i == -1)
-        return 1;
-      printf("Blocked domains successfully.\n");
+      action = block_domain;
     } else if (is_flag(argv[i], "-u", "--unblock")) {
-      i = process_domains(i, argc, argv, unblock_domain);
-      if (i == -1)
-        return 1;
-      printf("Unblocked domains successfully.\n");
+      action = unblock_domain;
     } else if (is_flag(argv[i], "-U", "--unblock-all")) {
-      unblock_domain(NULL);
-      printf("Unblocked domains successfully.\n");
+      if (unblock_domain(NULL) != 0)
+        had_failure = 1;
+      continue;
     } else if (is_flag(argv[i], "-h", "--help")) {
       print_help();
       return 0;
@@ -61,8 +44,24 @@ int main(int argc, char **argv) {
       fprintf(stderr, "Unknown argument: %s\n", argv[i]);
       return 1;
     }
+
+    const char *flag = argv[i];
+    if (i + 1 >= argc || argv[i + 1][0] == '-') {
+      fprintf(stderr, "Expected domains after %s\n", flag);
+      return 1;
+    }
+    while (i + 1 < argc && argv[i + 1][0] != '-') {
+      i++;
+      if (action(argv[i]) != 0)
+        had_failure = 1;
+    }
   }
 
   flush_dns();
+  if (had_failure) {
+    fprintf(stderr, "Some operations failed.\n");
+    return 1;
+  }
+  printf("Done.\n");
   return 0;
 }
