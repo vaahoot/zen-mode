@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define ZEN_VERSION "0.1.2"
+#define ZEN_VERSION "0.1.3"
 
 void print_help(void) {
   printf("Usage: zen [options]\n");
@@ -34,14 +34,18 @@ int main(int argc, char **argv) {
       printf("zen %s\n", ZEN_VERSION);
       return 0;
     }
-  }
-  if (getuid() != 0) {
-    fprintf(stderr, "zen requires root privileges. Run with sudo.\n");
-    return 1;
+    if (is_flag(argv[i], "-h", "--help")) {
+      print_help();
+      return 0;
+    }
   }
   if (argc < 2) {
     print_help();
     return 0;
+  }
+  if (getuid() != 0) {
+    fprintf(stderr, "zen requires root privileges. Run with sudo.\n");
+    return 1;
   }
 
   const char **blocked = calloc((size_t)argc, sizeof(char *));
