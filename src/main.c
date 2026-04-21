@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define ZEN_VERSION "0.1.1"
+#define ZEN_VERSION "0.1.2"
 
 void print_help(void) {
   printf("Usage: zen [options]\n");
