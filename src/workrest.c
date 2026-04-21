@@ -10,10 +10,11 @@ void notify(const char *message) {
   char cmd[512];
   int n = snprintf(cmd, sizeof(cmd),
                    "osascript -e 'display notification \"%s\" with title "
-                   "\"Zen\" sound name \"Glass\"'",
+                   "\"Zen\"'",
                    message);
   if (n > 0 && (size_t)n < sizeof(cmd))
     system(cmd);
+  system("afplay /System/Library/Sounds/Glass.aiff &");
 }
 
 int interruptible_sleep(unsigned seconds) {
